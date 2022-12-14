@@ -18,7 +18,7 @@ function setup() {
     pg = createGraphics(cs, cs);
     pg.pixelDensity(2);
     pg.colorMode(HSB);
-    frameRate(1);
+    noLoop();
 }
 
 function setImage() {
@@ -30,8 +30,18 @@ function setImage() {
 }
 
 function draw() {
-    pg.fill(0)
-    pg.circle(random(cs), random(cs), random(cs * 0.5))
+    pg.stroke(0)
+    pg.noFill()
+    let w = 10;
+    let ws = cs / w;
+    for(let i = 0; i < 100; i++) {
+        let x = i % 10;
+        let y = Math.floor(i / 10);
+        console.log(x,y)
+        x += noise(x, y)
+        y += noise(y, x)
+        pg.rect(x * ws, y * ws, ws, ws)
+    }
     setImage()
 }
 
@@ -39,4 +49,8 @@ function keyPressed() {
     if (keyCode === LEFT_ARROW) {
         save(`${inputHash}.png`);
     }
+}
+
+function windowResized() {
+    setImage();
 }
