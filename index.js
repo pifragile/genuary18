@@ -1,7 +1,10 @@
 let is;
 let cs = 2000;
 let nParticles = 30000;
-//let particles = [];
+var noiseScale = 10;
+
+// initialize wave params
+let waveF, waveI, waveT;
 
 let palette = ["#D84462", "#785496", "#F0CA35", "#C9C0BD", "#201728"];
 
@@ -26,6 +29,14 @@ function setup() {
 
     pg.background(palette[4])
 
+    // Randomize wave params 
+    waveF = floor(5 + random() * 5); // 5 to 10
+    waveI = 1 + floor(random() * 5); // 1 to 5
+    waveT = floor(random() * 2 + 1) * 10 // 10 or 20
+    noiseScale = 5 * 10 ** (random() * 2 - 1) // 0.5 to 50
+
+    console.log(waveF, waveI, waveT);
+    console.log(noiseScale);
 }
 
 function setImage() {
@@ -41,13 +52,13 @@ function waveFx(x, f, i, t) {
     return i * Math.sin(f * x * TWO_PI) ** t;
 }
 
-// Grid-like probability density function given input z at coords (x,y)
-function isValid(x, y, z) {
+// Grid-like probability density function given input z at coords (x,y) for waves of (f, i, t)
+function isValid(x, y, z, f, i, t) {
     // let p1 be the pdf of 1st wave in x axis
-    let p1 = waveFx(x, 5, 10, 10);
+    let p1 = waveFx(x, f, i, t);
 
     // let p2 by the pdf of 2nd wave in y axis
-    let p2 = waveFx(y, 5, 10, 10);
+    let p2 = waveFx(y, f, i, t);
 
     // Return true if z < average(p1, p2)
     return z < (p1 + p2) / 2;
@@ -67,14 +78,14 @@ function draw() {
     for (let i = 0; i < nParticles; i++) {
         let x = random(0, cs) / cs;
         let y = random(0, cs) / cs;
-        let z = random();
+        let z = noise(x * noiseScale, y * noiseScale);
 
-        if (isValid(x, y, z)) {
+        if (isValid(x, y, z, waveF, waveI, waveT)) {
             let rs = cs * (0.02 * (waveFx(y ** rexp, x ** rexp, ip, tp) + 0.01) + 0.001);
             rs = rs || 0.001 * cs;
-            console.log(rs)
+            //console.log(rs)
             pg.strokeWeight(waveFx(x ** exp, y ** exp, ip, tp) * 2 + 2);
-            pg.stroke((random(palette)))
+            pg.stroke(palette[floor(noise(x * noiseScale, y * noiseScale) * palette.length)])
             pg.rect(x * cs, y * cs, rs, rs);
         }
     }
