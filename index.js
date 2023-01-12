@@ -6,7 +6,14 @@ var noiseScale = 10;
 // initialize wave params
 let waveF, waveI, waveT;
 
-let palette = ["#D84462", "#785496", "#F0CA35", "#C9C0BD", "#201728"];
+let palette;
+let palettes = [
+    ["#22162b", "#451f55", "#724e91", "#e54f6d", "#f8c630", "#c4bbb8"],
+    ["#1a535c", "#fdad0d", "#ff4747", "#ffeb85", "#7b1714", "#f9f1f6"],
+    ["#1a535c", "#fdad0d", "#ff4747", "#ffeb85", "#7b1714", "#f9f1f6"],
+    ["#002642", "#840032", "#e59500", "#e5dada", "#02040f", "#ff6978"],
+    ["#b5d6b2", "#53131e", "#5a464c", "#fffacc", "#ffefbd", "#103900"],
+];
 
 function setSeeds(hash) {
     num = hash.split("").reduce((acc, cur) => acc * cur.charCodeAt(0), 1);
@@ -16,6 +23,8 @@ function setSeeds(hash) {
 }
 
 function setup() {
+    palette = random(palettes)
+    palette = shuffle(palette);
     setSeeds(fxhash);
     let is = min(windowHeight, windowWidth);
     createCanvas(is, is);
@@ -25,15 +34,15 @@ function setup() {
     angleMode(RADIANS);
     noLoop();
 
-    palette = palette.map(c => pg.color(c))
+    palette = palette.map((c) => pg.color(c));
 
-    pg.background(palette[4])
+    pg.background(palette[4]);
 
-    // Randomize wave params 
+    // Randomize wave params
     waveF = floor(5 + random() * 5); // 5 to 10
     waveI = 1 + floor(random() * 5); // 1 to 5
-    waveT = floor(random() * 2 + 1) * 10 // 10 or 20
-    noiseScale = 5 * 10 ** (random() * 2 - 1) // 0.5 to 50
+    waveT = floor(random() * 2 + 1) * 10; // 10 or 20
+    noiseScale = 5 * 10 ** (random() * 2 - 1); // 0.5 to 50
 
     console.log(waveF, waveI, waveT);
     console.log(noiseScale);
@@ -81,11 +90,19 @@ function draw() {
         let z = noise(x * noiseScale, y * noiseScale);
 
         if (isValid(x, y, z, waveF, waveI, waveT)) {
-            let rs = cs * (0.02 * (waveFx(y ** rexp, x ** rexp, ip, tp) + 0.01) + 0.001);
+            let rs =
+                cs *
+                (0.02 * (waveFx(y ** rexp, x ** rexp, ip, tp) + 0.01) + 0.001);
             rs = rs || 0.001 * cs;
             //console.log(rs)
             pg.strokeWeight(waveFx(x ** exp, y ** exp, ip, tp) * 2 + 2);
-            pg.stroke(palette[floor(noise(x * noiseScale, y * noiseScale) * palette.length)])
+            pg.stroke(
+                palette[
+                    floor(
+                        noise(x * noiseScale, y * noiseScale) * palette.length
+                    )
+                ]
+            );
             pg.rect(x * cs, y * cs, rs, rs);
         }
     }
@@ -95,7 +112,7 @@ function draw() {
 
 function keyPressed() {
     if (keyCode === LEFT_ARROW) {
-        save(`${inputHash}.png`);
+        save(`img.png`);
     }
 }
 
